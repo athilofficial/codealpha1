@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AthilChatGPT</title>
+    <style>
+        {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+            height: 300px;
+            overflow-y: scroll;
+        }
+
+        .message {
+            margin-bottom: 10px;
+        }
+
+        .user-message {
+            text-align: right;
+            color: darkgreen;
+        }
+
+        .bot-message {
+            text-align: left;
+            color: green;
+        }
+
+        .input-box {
+            display: flex;
+        }
+
+            .input-box input[type="text"] {
+                flex: 1;
+                padding: 10px;
+            }
+
+            .input-box button {
+                padding: 10px;
+                background-color: #007bff;
+                color: black;
+                border: none;
+                cursor: pointer;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Athil ChatGPT</h1>
+        <div class="chat-box" id="chatBox"></div>
+        <div class="input-box">
+            <input type="text" id="userInput" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput').value;
+            if (!userInput.trim()) return;
+
+            appendMessage('user', userInput);
+            document.getElementById('userInput').value = '';
+
+            const response = await getChatGPTResponse(userInput);
+            appendMessage('bot', response);
+        }
+
+        async function getChatGPTResponse(userInput) {
+            const apiKey = 'YOUR_API_KEY'; // Replace 'YOUR_API_KEY' with your actual API key
+            const apiUrl = 'https://api.openai.com/v1/chat/completions';
+            const prompt = userInput.trim();
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                gheaders: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'text-davinci-002',
+                    messages: [
+                        {
+                            role: 'user',
+                            content: prompt
+                        }
+                    ]
+                })
+            });
+
+            const data = await response.json();
+            return data.choices[0].message.content;
+        }
+
+        function appendMessage(sender, message) {
+            const chatBox = document.getElementById('chatBox');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+
+            if (sender === 'user') {
+                messageElement.classList.add('user-message');
+            } else {
+                messageElement.classList.add('bot-message');
+            }
+
+            messageElement.textContent = message;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
